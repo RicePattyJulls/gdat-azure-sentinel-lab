@@ -111,4 +111,48 @@ source ./cargar-secretos.sh     # genera las contraseñas del lab en .env.local 
 Guía detallada y capa de Microsoft 365 / identidad en [`biceps/README.md`](biceps/README.md)
 y [`gdat/BUILD_GDAT2.0.md`](gdat/BUILD_GDAT2.0.md).
 
-<!-- Capturas: incidente correlacionado en Sentinel y advanced hunting. Pendientes de anadir (anonimizadas). -->
+## Capturas
+
+### Plataforma
+
+Microsoft Sentinel conectado como workspace primario a Defender XDR, y el sensor de
+Defender for Identity desplegado en el controlador de dominio.
+
+![Sentinel conectado a Defender XDR](docs/img/01-sentinel-defender-xdr.png)
+![Sensor de MDI en el DC](docs/img/02-mdi-sensor-dc.png)
+
+### El ataque, detectado
+
+La telemetría estructurada de NovaShop registra la SQL injection, y Defender for Identity
+detecta la actividad de la cuenta comprometida `charlie.dev` sobre Active Directory.
+
+![Telemetría de NovaShop: SQL injection](docs/img/03-novashop-telemetria-sqli.png)
+![MDI detectando a charlie.dev](docs/img/04-mdi-charlie-dev.png)
+
+El entity mapping correlaciona las alertas por cuenta, host e IP; Defender for Identity
+levanta la alerta de DCSync, y la caza reúne toda la cadena en Sentinel y Defender.
+
+![Correlación de alertas por entidad](docs/img/05-correlacion-por-entidad.png)
+![Alertas de DCSync](docs/img/06-alertas-dcsync.png)
+![Cadena completa de alertas](docs/img/07-cadena-alertas.png)
+
+Línea de tiempo de la intrusión reconstruida sobre más de 7.000 eventos, desde la
+explotación web hasta el compromiso del dominio.
+
+![Línea de tiempo del ataque](docs/img/08-timeline-ataque.png)
+
+### Respuesta
+
+Attack disruption deshabilita y contiene la cuenta automáticamente, live response permite
+investigar el endpoint comprometido y una regla ASR bloquea la ejecución vía WMI.
+
+![Attack disruption: contención de la cuenta](docs/img/09-attack-disruption.png)
+![Live response en MEMBER01](docs/img/10-live-response-member01.png)
+![ASR bloqueando ejecución por WMI](docs/img/11-asr-wmi-bloqueado.png)
+
+### Ingeniería de telemetría
+
+Medición de la latencia del reenvío de eventos de Windows (WEF) desde el agente hasta el
+colector, para confirmar que la telemetría llega a tiempo.
+
+![Latencia del WEF](docs/img/12-wef-latencia.png)
