@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Sign in — NovaShop{% endblock %}
+{% block content %}
+  <section class="auth-layout">
+    <div class="auth-copy">
+      <p class="eyebrow">Customer portal</p>
+      <h1>Welcome back.</h1>
+      <p>Use a fictional lab account to review orders and submit product reviews.</p>
+      <div class="credential-card">
+        <strong>Demo customer</strong>
+        <code>alice.finance / AliceLab!2026</code>
+      </div>
+    </div>
+    <form class="auth-form" method="post">
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button class="primary-action" type="submit">Sign in</button>
+    </form>
+  </section>
+{% endblock %}

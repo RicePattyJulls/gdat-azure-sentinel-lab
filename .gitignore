@@ -1,0 +1,14 @@
+**/.env.local
+**/.azure/
+**/.venv/
+**/__pycache__/
+**/*.py[cod]
+**/instance/
+**/*.sqlite3
+**/*.zip
+**/.DS_Store
+*.key
+*.pem
+# Bicep compilado
+biceps/*.json
+!biceps/parameters/*.json

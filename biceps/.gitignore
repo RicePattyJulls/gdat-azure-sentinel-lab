@@ -1,0 +1,8 @@
+# Contrasenas del laboratorio. Nunca a Git.
+.env.local
+*.key
+*.pem
+
+# Salidas de compilacion de Bicep
+*.json
+!parameters/*.json

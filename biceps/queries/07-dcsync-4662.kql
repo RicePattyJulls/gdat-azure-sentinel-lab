@@ -1,0 +1,20 @@
+let DerechosReplicacion = dynamic([
+    "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2",
+    "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2"
+]);
+let CuentasReplicacion = dynamic([]);   // service accounts legítimos, p.ej. MSOL_ de Entra Connect
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID == 4662
+| where Properties has_any (DerechosReplicacion)
+| extend CuentaNormalizada = tolower(
+    iff(Account contains "\\", tostring(split(Account, "\\")[1]),
+        iff(Account contains "@", tostring(split(Account, "@")[0]), Account)))
+// Los DCs replican entre sí de forma legítima: sus cuentas terminan en $
+| where CuentaNormalizada !endswith "$"
+| where CuentaNormalizada !in~ (CuentasReplicacion)
+| extend HostCorto = tolower(tostring(split(Computer, ".")[0]))
+| summarize
+    Intentos = count(),
+    TimeGenerated = max(TimeGenerated)
+    by CuentaNormalizada, HostCorto

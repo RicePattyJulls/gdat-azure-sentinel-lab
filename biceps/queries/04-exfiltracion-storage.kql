@@ -1,0 +1,22 @@
+let IPsAdministracion = dynamic(__IPS_ADMIN__);
+// StorageBlobLogs no dice que maquina subio el blob, solo desde que IP. Este mapa
+// convierte la IP publica en el host del laboratorio, para que la alerta comparta
+// entidad Host con las del endpoint y el incidente salga unico.
+let HostsPorIP = dynamic(__MAPA_IP_HOST__);
+StorageBlobLogs
+| where TimeGenerated > ago(1h)
+| where OperationName == "PutBlob"
+| where AuthenticationType == "AccountKey"
+| where StatusCode == 201
+| extend IPOrigen = tostring(split(CallerIpAddress, ":")[0])
+| where IPOrigen !in (IPsAdministracion)
+| summarize
+    Subidas   = count(),
+    Bytes     = sum(RequestBodySize),
+    Ficheros  = make_set(Uri, 10),
+    Inicio    = min(TimeGenerated),
+    Fin       = max(TimeGenerated)
+    by IPOrigen, AuthenticationType
+| extend HostAfectado = "__NOMBRE_STORAGE__"
+| extend HostOrigen = tostring(HostsPorIP[IPOrigen])
+| extend TimeGenerated = Fin

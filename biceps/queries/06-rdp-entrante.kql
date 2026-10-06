@@ -1,0 +1,16 @@
+let CuentasAdministracion = dynamic(__CUENTAS_ADMIN__);
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID == 4624
+| where LogonType == 10
+| extend IPOrigen = replace_string(tostring(IpAddress), "::ffff:", "")
+// Solo lo que entra desde fuera: el RDP interno entre VMs no interesa
+| where isnotempty(IPOrigen) and IPOrigen != "-"
+| where not(ipv4_is_private(IPOrigen))
+| extend CuentaNormalizada = tolower(
+    iff(Account contains "\\", tostring(split(Account, "\\")[1]),
+        iff(Account contains "@", tostring(split(Account, "@")[0]), Account)))
+| where CuentaNormalizada !endswith "$"
+| where CuentaNormalizada !in~ (CuentasAdministracion)
+| extend HostCorto = tolower(tostring(split(Computer, ".")[0]))
+| project TimeGenerated, HostCorto, Computer, CuentaNormalizada, IPOrigen, LogonType

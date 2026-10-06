@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}NovaShop — Security lab storefront{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div>
+      <p class="eyebrow">NovaShop essentials</p>
+      <h1>Tools for work,<br>built for focus.</h1>
+      <p class="hero-copy">A fictional storefront designed for controlled AppSec and SOC detection exercises.</p>
+      <a class="primary-action" href="#catalog">Explore the catalog</a>
+    </div>
+    <div class="hero-panel">
+      <span class="orbit orbit-one"></span>
+      <span class="orbit orbit-two"></span>
+      <span class="hero-letter">N</span>
+      <div class="hero-caption">Detection-ready<br><strong>training telemetry</strong></div>
+    </div>
+  </section>
+
+  <section id="catalog" class="section-heading">
+    <div>
+      <p class="eyebrow">Catalog</p>
+      <h2>Featured products</h2>
+    </div>
+    <span>{{ products|length }} fictional items</span>
+  </section>
+  <div class="product-grid">
+    {% for product in products %}
+      <article class="product-card">
+        <a class="product-visual {{ product['accent'] }}" href="{{ url_for('product', product_id=product['id']) }}">
+          <span>{{ product['name'][0] }}</span>
+        </a>
+        <div class="product-body">
+          <div>
+            <h3><a href="{{ url_for('product', product_id=product['id']) }}">{{ product['name'] }}</a></h3>
+            <p>{{ product['description'] }}</p>
+          </div>
+          <strong>{{ product['price_cents']|money }}</strong>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+SecurityEvent
+| where TimeGenerated > ago(1h)
+| where EventID == 4769
+| where ServiceName !endswith "$"
+| where ServiceName !in~ ("krbtgt")
+| extend Cifrado = extract(@'Name="TicketEncryptionType"[^>]*>([^<]+)<', 1, tostring(EventData))
+| where Cifrado == "0x17"
+| extend IPOrigen = replace_string(tostring(IpAddress), "::ffff:", "")
+| extend CuentaNormalizada = tolower(
+    iff(Account contains "\\", tostring(split(Account, "\\")[1]),
+        iff(Account contains "@", tostring(split(Account, "@")[0]), Account)))
+| extend HostCorto = tolower(tostring(split(Computer, ".")[0]))
+| project TimeGenerated, HostCorto, Computer, CuentaNormalizada, ServiceName, IPOrigen, Cifrado

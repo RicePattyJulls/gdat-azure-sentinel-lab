@@ -1,0 +1,15 @@
+let umbral = 5;
+AzureActivity
+| where TimeGenerated > ago(1h)
+| where OperationNameValue endswith "/write"
+| where ActivityStatusValue == "Success"
+| extend CuentaNormalizada = tolower(
+    iff(Caller contains "@", tostring(split(Caller, "@")[0]), Caller))
+| extend IPOrigen = tostring(CallerIpAddress)
+| summarize
+    Recursos    = dcount(_ResourceId),
+    Operaciones = count(),
+    Ejemplos    = make_set(OperationNameValue, 10),
+    TimeGenerated = max(TimeGenerated)
+    by CuentaNormalizada, IPOrigen
+| where Recursos >= umbral

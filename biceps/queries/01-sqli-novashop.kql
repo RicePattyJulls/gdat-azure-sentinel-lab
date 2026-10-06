@@ -1,0 +1,17 @@
+AppServiceConsoleLogs
+| where TimeGenerated > ago(1h)
+| where ResultDescription has "novashop_security"
+| extend Evento = parse_json(extract(@"(\{.*\})", 1, ResultDescription))
+| where tostring(Evento.event_type) == "product_search"
+// La firma la calcula la propia aplicacion. Filtrar por ella y no por el
+// resultado incluye los tanteos: un UNION con el numero de columnas equivocado
+// termina en database_error y es el paso previo obligado de la exfiltracion.
+| where tobool(Evento.signature_match) == true
+| extend
+    IPOrigen  = tostring(Evento.client_ip),
+    Termino   = tostring(Evento.search_term),
+    Cuenta    = tostring(Evento.user),
+    Resultado = tostring(Evento.outcome)
+| extend CuentaNormalizada = tolower(iff(isempty(Cuenta) or Cuenta == "null", "anonimo", Cuenta))
+| extend HostAfectado = "__NOMBRE_APP__"
+| project TimeGenerated, IPOrigen, CuentaNormalizada, HostAfectado, Termino, Resultado

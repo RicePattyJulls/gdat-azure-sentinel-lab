@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My account — NovaShop{% endblock %}
+{% block content %}
+  <section class="page-heading account-heading">
+    <div><p class="eyebrow">Customer account</p><h1>Hello, {{ g.user['display_name'] }}.</h1></div>
+    <span class="role-pill">{{ g.user['role'] }}</span>
+  </section>
+  <section class="orders-panel">
+    <div class="section-heading"><div><p class="eyebrow">Purchases</p><h2>Your orders</h2></div></div>
+    {% for order in orders %}
+      <a class="order-row" href="{{ url_for('order', order_id=order['id']) }}">
+        <span><small>Order</small><strong>#{{ order['id'] }}</strong></span>
+        <span><small>Date</small><strong>{{ order['created_at'][:10] }}</strong></span>
+        <span><small>Status</small><strong>{{ order['status'] }}</strong></span>
+        <span><small>Total</small><strong>{{ order['total_cents']|money }}</strong></span>
+        <b>View →</b>
+      </a>
+    {% endfor %}
+  </section>
+  {% if lab_mode %}
+    <details class="lab-note">
+      <summary>Lab hint: object-level authorization</summary>
+      <p>The order page intentionally trusts the numeric identifier in vulnerable mode. Try another fictional order ID.</p>
+    </details>
+  {% endif %}
+{% endblock %}

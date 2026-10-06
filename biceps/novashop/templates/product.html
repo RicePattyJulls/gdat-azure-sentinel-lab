@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ product['name'] }} — NovaShop{% endblock %}
+{% block content %}
+  <section class="product-detail">
+    <div class="product-detail-visual {{ product['accent'] }}">{{ product['name'][0] }}</div>
+    <div class="product-detail-copy">
+      <p class="eyebrow">NovaShop equipment</p>
+      <h1>{{ product['name'] }}</h1>
+      <p>{{ product['description'] }}</p>
+      <strong class="detail-price">{{ product['price_cents']|money }}</strong>
+      <button class="primary-action" type="button">Add to demo cart</button>
+    </div>
+  </section>
+
+  <section class="reviews">
+    <div class="section-heading">
+      <div><p class="eyebrow">Community</p><h2>Product reviews</h2></div>
+      <span>{{ reviews|length }} reviews</span>
+    </div>
+
+    {% if g.user %}
+      <form class="review-form" action="{{ url_for('add_review', product_id=product['id']) }}" method="post">
+        <label for="body">Write a review as {{ g.user['username'] }}</label>
+        <textarea id="body" name="body" rows="4" maxlength="2000" placeholder="Share your fictional experience"></textarea>
+        <button type="submit">Publish review</button>
+      </form>
+    {% else %}
+      <p class="signin-prompt"><a href="{{ url_for('login') }}">Sign in</a> to publish a review.</p>
+    {% endif %}
+
+    <div class="review-list">
+      {% for review in reviews %}
+        <article class="review-card">
+          <div><strong>{{ review['username'] }}</strong><time>{{ review['created_at'][:10] }}</time></div>
+          {% if lab_mode %}
+            {# INTENTIONAL LAB VULNERABILITY: stored content bypasses autoescaping. #}
+            <p>{{ review['body']|safe }}</p>
+          {% else %}
+            <p>{{ review['body'] }}</p>
+          {% endif %}
+        </article>
+      {% else %}
+        <div class="empty-state">No reviews yet.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Search — NovaShop{% endblock %}
+{% block content %}
+  <section class="page-heading">
+    <p class="eyebrow">Product search</p>
+    <h1>Results for “{{ term }}”</h1>
+    <p>{{ products|length }} products matched.</p>
+  </section>
+
+  {% if error %}
+    <div class="technical-error"><strong>Database error:</strong> {{ error }}</div>
+  {% endif %}
+
+  {% if lab_mode and executed_query %}
+    <details class="lab-note">
+      <summary>Lab evidence: raw SQL query</summary>
+      <code>{{ executed_query }}</code>
+      <p>User input is intentionally concatenated in vulnerable mode.</p>
+    </details>
+  {% endif %}
+
+  <div class="search-results">
+    {% for product in products %}
+      <a class="result-row" href="{{ url_for('product', product_id=product['id']) }}">
+        <span class="result-icon {{ product['accent'] }}">{{ product['name'][0] }}</span>
+        <span><strong>{{ product['name'] }}</strong><small>{{ product['description'] }}</small></span>
+        <b>{{ product['price_cents']|money }}</b>
+      </a>
+    {% else %}
+      <div class="empty-state">No products found. Try another term.</div>
+    {% endfor %}
+  </div>
+{% endblock %}

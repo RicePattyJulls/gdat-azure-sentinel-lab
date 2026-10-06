@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order['id'] }} — NovaShop{% endblock %}
+{% block content %}
+  <section class="page-heading order-heading">
+    <div><p class="eyebrow">Order detail</p><h1>Order #{{ order['id'] }}</h1></div>
+    <span class="status-pill">{{ order['status'] }}</span>
+  </section>
+  {% if lab_mode and order['user_id'] != g.user['id'] and g.user['role'] != 'admin' %}
+    <div class="technical-error"><strong>Lab finding:</strong> this order belongs to {{ order['owner_username'] }}, but the application returned it without an ownership check.</div>
+  {% endif %}
+  <div class="order-layout">
+    <section class="orders-panel">
+      {% for item in items %}
+        <div class="line-item">
+          <span class="result-icon blue">{{ item['name'][0] }}</span>
+          <span><strong>{{ item['name'] }}</strong><small>Quantity {{ item['quantity'] }}</small></span>
+          <b>{{ (item['quantity'] * item['unit_price_cents'])|money }}</b>
+        </div>
+      {% endfor %}
+      <div class="order-total"><span>Total</span><strong>{{ order['total_cents']|money }}</strong></div>
+    </section>
+    <aside class="shipping-card">
+      <p class="eyebrow">Shipping to</p>
+      <strong>{{ order['owner_display_name'] }}</strong>
+      <p>{{ order['shipping_address'] }}</p>
+      <small>All names and addresses are fictional.</small>
+    </aside>
+  </div>
+{% endblock %}

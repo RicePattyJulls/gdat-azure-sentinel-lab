@@ -1,0 +1,9 @@
+SecurityEvent
+| where EventID in (4728, 4732)
+| where TargetSid endswith "-512" or TargetSid == "S-1-5-32-544"
+| extend MiembroAnadido = tolower(tostring(split(tostring(split(MemberName, ",")[0]), "=")[1]))
+| extend CuentaNormalizada = tolower(
+    iff(SubjectUserName contains "@", tostring(split(SubjectUserName, "@")[0]), SubjectUserName))
+| extend HostCorto = tolower(tostring(split(Computer, ".")[0]))
+| extend GrupoObjetivo = iff(TargetSid == "S-1-5-32-544", "Administradores locales", "Domain Admins")
+| project TimeGenerated, HostCorto, Computer, CuentaNormalizada, MiembroAnadido, GrupoObjetivo, TargetSid, EventID
